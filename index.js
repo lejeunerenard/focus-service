@@ -11,13 +11,16 @@ const store = new JSONStore()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+function currentFilter (now = new Date()) {
+  return (todo) => !todo.completedOn &&
+    (!todo.snoozed || todo.snoozed.getTime() <= now.getTime())
+}
+
 app.get('/', (req, res) => res.send('Hello World!'))
 app.get('/todos', (req, res) => {
   let todos = store.get()
 
-  let now = new Date()
-  todos = todos.filter((todo) => !todo.completedOn &&
-      (!todo.snoozed || todo.snoozed.getTime() <= now.getTime()))
+  todos = todos.filter(currentFilter())
 
   res.status(200).send(todos)
 })
@@ -65,7 +68,7 @@ function snooze (srcs, when) {
   when = new Date(when)
   return Promise.all(srcs.map((id) => {
     let todo = store.get(id)
-    todo.snoozed = todo.snoozed || when
+    todo.snoozed = when
     return store.put(todo)
   }))
 }
@@ -80,7 +83,9 @@ app.post('/todos/focus/:id', (req, res) => {
   let id = req.body.id || req.params.id
 
   let focusTodo = store.get(id)
-  let srcs = store.get().filter((todo) => todo !== focusTodo)
+  let srcs = store.get()
+    .filter(currentFilter())
+    .filter((todo) => todo !== focusTodo)
     .map((todo) => todo.id)
   snooze(srcs)
     .then(() => {
