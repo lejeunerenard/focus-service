@@ -85,17 +85,24 @@ app.post('/todos/snooze', (req, res) => {
   snooze(srcs, when).then(() => res.status(200).send())
 })
 app.post('/todos/focus', (req, res) => {
-  let id = req.body.id
+  let ids = req.body.ids
 
-  let focusTodo = store.get(id)
+  // Ensure array
+  if (!(ids instanceof Array)) {
+    ids = [ids]
+  }
+
+  let focusTodos = ids.map((id) => store.get(id))
   let srcs = store.get()
     .filter(currentFilter())
-    .filter((todo) => todo !== focusTodo)
+    .filter((todo) => focusTodos.indexOf(todo) === -1)
     .map((todo) => todo.id)
   snooze(srcs)
     .then(() => {
-      focusTodo.snoozed = null
-      return store.put(focusTodo)
+      return Promise.all(focusTodos.map((focusTodo) => {
+        focusTodo.snoozed = null
+        return store.put(focusTodo)
+      }))
     })
     .then(() => res.status(200).send())
 })
