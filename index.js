@@ -33,11 +33,18 @@ app.post('/todos', (req, res) => {
     })
 })
 app.post('/todos/done', (req, res) => {
-  let id = req.body.id
+  let ids = req.body.ids
 
-  let current = store.get(id)
-  current.complete()
-  store.put(current)
+  // Ensure array
+  if (!(ids instanceof Array)) {
+    ids = [ids]
+  }
+
+  Promise.all(ids.map((id) => {
+    let current = store.get(id)
+    current.complete()
+    return store.put(current)
+  }))
     .then(() => {
       res.status(200).send('done')
     })
