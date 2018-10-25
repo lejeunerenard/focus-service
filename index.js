@@ -37,7 +37,7 @@ app.post('/todos/done', (req, res) => {
 
   // Ensure array
   if (!(ids instanceof Array)) {
-    ids = [ids]
+    ids = ids ? [ids] : []
   }
 
   Promise.all(ids.map((id) => {
@@ -54,7 +54,7 @@ app.post('/todos/move', (req, res) => {
 
   // Ensure array
   if (!(srcs instanceof Array)) {
-    srcs = [srcs]
+    srcs = srcs ? [srcs] : []
   }
 
   store.move(srcs, dest).then(() => res.status(200).send())
@@ -63,7 +63,7 @@ app.post('/todos/move', (req, res) => {
 function snooze (srcs, when) {
   // Ensure array
   if (!(srcs instanceof Array)) {
-    srcs = [srcs]
+    srcs = srcs ? [srcs] : []
   }
 
   // Someday
@@ -89,7 +89,7 @@ app.post('/todos/focus', (req, res) => {
 
   // Ensure array
   if (!(ids instanceof Array)) {
-    ids = [ids]
+    ids = ids ? [ids] : []
   }
 
   let focusTodos = ids.map((id) => store.get(id))
