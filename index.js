@@ -43,14 +43,14 @@ app.post('/todos/done', (req, res) => {
     })
 })
 app.post('/todos/move', (req, res) => {
-  let { src, dest } = req.body
+  let { srcs, dest } = req.body
 
   // Ensure array
-  if (!(src instanceof Array)) {
-    src = [src]
+  if (!(srcs instanceof Array)) {
+    srcs = [srcs]
   }
 
-  store.move(src, dest).then(() => res.status(200).send())
+  store.move(srcs, dest).then(() => res.status(200).send())
 })
 
 function snooze (srcs, when) {
