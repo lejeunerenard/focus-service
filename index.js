@@ -32,8 +32,8 @@ app.post('/todos', (req, res) => {
       res.status(200).send()
     })
 })
-app.post('/todos/done/:id', (req, res) => {
-  let id = req.body.id || req.params.id
+app.post('/todos/done', (req, res) => {
+  let id = req.body.id
 
   let current = store.get(id)
   current.complete()
@@ -43,8 +43,7 @@ app.post('/todos/done/:id', (req, res) => {
     })
 })
 app.post('/todos/move', (req, res) => {
-  let src = req.body.src || req.params.src
-  let dest = req.body.dest || req.params.dest
+  let { src, dest } = req.body
 
   // Ensure array
   if (!(src instanceof Array)) {
@@ -74,13 +73,12 @@ function snooze (srcs, when) {
 }
 
 app.post('/todos/snooze', (req, res) => {
-  let srcs = req.body.srcs || req.params.src
-  let when = req.body.when || req.params.when
+  let { srcs, when } = req.body
 
   snooze(srcs, when).then(() => res.status(200).send())
 })
-app.post('/todos/focus/:id', (req, res) => {
-  let id = req.body.id || req.params.id
+app.post('/todos/focus', (req, res) => {
+  let id = req.body.id
 
   let focusTodo = store.get(id)
   let srcs = store.get()
