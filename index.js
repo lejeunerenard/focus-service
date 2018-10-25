@@ -40,6 +40,11 @@ app.post('/todos/done', (req, res) => {
     ids = ids ? [ids] : []
   }
 
+  // Default to topmost to-do
+  if (ids.length === 0) {
+    ids.push(store.get().filter(currentFilter())[0].id)
+  }
+
   Promise.all(ids.map((id) => {
     let current = store.get(id)
     current.complete()
@@ -81,6 +86,15 @@ function snooze (srcs, when) {
 
 app.post('/todos/snooze', (req, res) => {
   let { srcs, when } = req.body
+  // Ensure array
+  if (!(srcs instanceof Array)) {
+    srcs = srcs ? [srcs] : []
+  }
+
+  // Default to topmost to-do
+  if (srcs.length === 0) {
+    srcs.push(store.get().filter(currentFilter())[0].id)
+  }
 
   snooze(srcs, when).then(() => res.status(200).send())
 })
@@ -90,6 +104,11 @@ app.post('/todos/focus', (req, res) => {
   // Ensure array
   if (!(ids instanceof Array)) {
     ids = ids ? [ids] : []
+  }
+
+  // Default to topmost to-do
+  if (ids.length === 0) {
+    ids.push(store.get().filter(currentFilter())[0].id)
   }
 
   let focusTodos = ids.map((id) => store.get(id))
